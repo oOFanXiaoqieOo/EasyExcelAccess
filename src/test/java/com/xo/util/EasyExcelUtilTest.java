@@ -82,6 +82,19 @@ public class EasyExcelUtilTest {
     }
 
 
+    @Test
+    /**List属性*/
+    public void testReadExcelDataLoadMask2() throws Exception {
+        String filePath = "E://HONG/1.xlsx";
+        String path = "E://HONG/1.xml";         //从配置文件中加载挡板组装配置数据
+        EasyExcelMask load=new EasyExcelMask();
+        List<EasyExcelMask> dMask =load.LoadMask(path,"nodelistname");//加载根节点->LoadTest节点下的Element数据，第一个属性或MaskName为mask,第二个属性或FakeName为fakemask,Text为matchmask
+        EasyExcelUtil.setdMask(dMask);
+        List<Object> objects=EasyExcelUtil.readExcelData(filePath, 3);
+        objects.forEach(System.out::println);
+        //System.out.println("Object[0]:"+JSON.toJSON(objects.get(0)));
+    }
+
 
     //@Test
     public void testWriteExcel() throws Exception {

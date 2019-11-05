@@ -20,7 +20,7 @@ import java.util.Map;
  * 例：
  *<MaskList>
  *     <Name1>
- *          <Element MaskName="AName" FakeName="A" Type="int" >AA,AB,AC</Element>
+ *          <Element MaskName="AName" FakeName="A" Type="int" List="DList">AA,AB,AC</Element>
  *     <Name1/>
  *</MaskList>
  *      读取配置文件中MaskList根节点下的数据
@@ -28,6 +28,7 @@ import java.util.Map;
  *     maskStr=AName(第一个property属性,MaskName优先选择)
  *     fakemask=A (第二个property属性,FakeName优先选择)
  *     typeStr=int(Type属性，多属性且名字不规范的情况下，Type属性不要排在前两个，有可能会影响maskStr和fakemask)
+ *      listStr=DList(List属性只能通过xml配置文件加载使用)
  *     matchStr=AA,AB,AC(text根据','转为list)
  * */
 public class EasyExcelMask {
@@ -35,12 +36,14 @@ public class EasyExcelMask {
     private String fakeMask;        //别名 针对freemarker导出模板时，适配转换的变量名
     private String[] matchStr;      //范围匹配（若maskStr为空字符串时进行范围匹配）
     private String typeStr;         //类型属性 默认为String（空值为String类型）
+    private String listStr;         //数据组装格式，按照list数据组装，与excel中上下文数据有关
     private Integer index;
 
     public EasyExcelMask(){
         maskStr="";
         fakeMask="";
         typeStr="";
+        listStr="";
         matchStr=null;
         index=-1;//默认的对应值（异常对应值）
     }
@@ -49,6 +52,7 @@ public class EasyExcelMask {
         this.maskStr=m;
         this.fakeMask="";
         this.typeStr="";
+        this.listStr="";
         matchStr=null;
         index=-1;//默认的对应值（异常对应值）
     }
@@ -57,6 +61,7 @@ public class EasyExcelMask {
         this.maskStr="";
         this.fakeMask="";
         this.typeStr="";
+        this.listStr="";
         matchStr=ms;
         index=-1;//默认的对应值（异常对应值）
     }
@@ -65,6 +70,7 @@ public class EasyExcelMask {
         this.maskStr=m;
         this.fakeMask=fm;
         this.typeStr="";
+        this.listStr="";
         matchStr=null;
         index=-1;//默认的对应值（异常对应值）
     }
@@ -73,6 +79,7 @@ public class EasyExcelMask {
         this.maskStr="";
         this.fakeMask=fm;
         this.typeStr="";
+        this.listStr="";
         this.matchStr =ms;
         index=-1;//默认的对应值（异常对应值）
     }
@@ -81,6 +88,7 @@ public class EasyExcelMask {
         this.maskStr=m;
         this.fakeMask=fm;
         this.typeStr="";
+        this.listStr="";
         this.matchStr =ms;
         index=-1;//默认的对应值（异常对应值）
     }
@@ -89,6 +97,7 @@ public class EasyExcelMask {
         this.maskStr=m;
         this.fakeMask=fm;
         this.typeStr=t;
+        this.listStr="";
         this.matchStr =ms;
         index=-1;//默认的对应值（异常对应值）
     }
@@ -97,6 +106,7 @@ public class EasyExcelMask {
         this.maskStr=(m==null)?"":m;
         this.fakeMask=(fm==null)?"":fm;
         this.typeStr="";
+        this.listStr="";
         if(ms !=null){
             String msStr[]=ms.split(",");
             this.matchStr =msStr;
@@ -110,6 +120,7 @@ public class EasyExcelMask {
         this.maskStr=(m==null)?"":m;
         this.fakeMask=(fm==null)?"":fm;
         this.typeStr=(t==null)?"":t;
+        this.listStr="";
         if(ms !=null){
             String msStr[]=ms.split(",");
             this.matchStr =msStr;
@@ -119,6 +130,19 @@ public class EasyExcelMask {
         index=-1;//默认的对应值（异常对应值）
     }
 
+    public EasyExcelMask(String m,String fm,String ms ,String t,String l){
+        this.maskStr=(m==null)?"":m;
+        this.fakeMask=(fm==null)?"":fm;
+        this.typeStr=(t==null)?"":t;
+        this.listStr=(l==null)?"":l;
+        if(ms !=null){
+            String msStr[]=ms.split(",");
+            this.matchStr =msStr;
+        }else{
+            matchStr=null;
+        }
+        index=-1;//默认的对应值（异常对应值）
+    }
 
     public String getMaskStr() {
         return maskStr;
@@ -146,6 +170,14 @@ public class EasyExcelMask {
 
     public void setTypeStr(String typeStr) {
         this.typeStr=typeStr;
+    }
+
+    public void setListStr(String listStr) {
+        this.listStr=listStr;
+    }
+
+    public String getListStr() {
+        return listStr;
     }
 
     public Integer getIndex() {
@@ -207,11 +239,29 @@ public class EasyExcelMask {
             value ="";
         }
         if(this.fakeMask!=""){
-            ret.put(this.fakeMask,value);
+//            ret.put(this.fakeMask,value);
+            if(this.listStr.equals("")){
+                ret.put(this.fakeMask,value);
+            }else{//若是List数据，则组装成List<Map<>>格式
+                Map<String,Object> newMap = new HashMap<>();
+                List<Map<String,Object>> listData = new ArrayList<>();
+                newMap.put(this.fakeMask,value);
+                listData.add(newMap);
+                ret.put(this.listStr,listData);
+            }
             return ret;
         }else {
             if(this.maskStr!=""){
-                ret.put(this.maskStr,value);
+//                ret.put(this.maskStr,value);
+                if(this.listStr.equals("")){
+                    ret.put(this.maskStr,value);
+                }else{//若是List数据，则组装成List<Map<>>格式
+                    Map<String,Object> newMap = new HashMap<>();
+                    List<Map<String,Object>> listData = new ArrayList<>();
+                    newMap.put(this.maskStr,value);
+                    listData.add(newMap);
+                    ret.put(this.listStr,listData);
+                }
                 return ret;
             }else{//未指定别名，且未找匹配的数据的情况
                 //ret.put("",value);//不输出数据
@@ -250,6 +300,7 @@ public class EasyExcelMask {
                 String maskStr = e.attributeValue("MaskName");
                 String fakeMask = e.attributeValue("FakeName");
                 String typeStr = e.attributeValue("Type");
+                String listStr = e.attributeValue("List");
                 int attrNum = e.attributeCount();
                 if(maskStr==null&&fakeMask==null&&attrNum>=2){//不存在MaskName、FakeName属性，但有两个属性值
                     maskStr=e.attribute(0).getValue();
@@ -268,7 +319,7 @@ public class EasyExcelMask {
                     }
                 }
 //                EasyExcelMask newNode = new EasyExcelMask(maskStr,fakeMask,matchStr);
-                EasyExcelMask newNode = new EasyExcelMask(maskStr,fakeMask,matchStr,typeStr);
+                EasyExcelMask newNode = new EasyExcelMask(maskStr,fakeMask,matchStr,typeStr,listStr);
                 ret.add(newNode);
                 //System.out.println("Text:"+ JSON.toJSONString(newNode));
             }

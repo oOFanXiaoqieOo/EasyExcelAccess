@@ -44,3 +44,56 @@ xml文件形如
  *关键字替换值		fakemask=Name(第二个property属性,FakeName优先选择)
  *数据类型			typeStrtypeStr=int(Type属性，多属性且名字不规范的情况下，Type属性不要排在前两个，有可能会影响maskStr和fakemask)（导入数据库使用）
  *范围匹配数据		matchStr=AA,AB,AC(text根据','转为list)		
+
+ 
+ 
+升级.简介（1.1）
+xml配置增加List属性（只能通过xml文件加载）
+<Element MaskName="名字" FakeName="Name" Type="int" List="DList"></Element>
+根据excel上下文组装一次list数据，组装规则，非List列都为空或者与上一次数据相同
+excel同一行中若存在相同List属性值，则打包为<Map>中；非同一行List属性值打包为List<Map>
+例：
+xml文件：
+<MaskList>
+	<nodelistname>
+		<Element MaskName="名字" FakeName="Name" ></Element>
+		<Element MaskName="年龄" FakeName="Age" ></Element>
+		<Element MaskName="性别" FakeName="Sex" ></Element>
+		<Element MaskName="课程1" FakeName="Course1"  List="CourseList1" ></Element>
+		<Element MaskName="课程2" FakeName="Course2"  List="CourseList1" ></Element>
+		<Element MaskName="课程3" FakeName="Course3"  List="CourseList2" ></Element>
+	</nodelistname>
+</MaskList>
+
+excel数据：
+名字      年龄      性别      课程1     课程2     课程3
+小明       3        1         A          B          C
+                              AA         BB         CC
+小小       2        2         微积分     天体物理   格斗
+                              针织       C语言      演员的自我修养
+
+组装数据：
+{Age=3, 
+CourseList1=[
+	{Course2=B, Course1=A}, 
+	{Course2=BB, Course1=AA}, 
+	{Course2=BB, Course1=AA}
+],
+Name=小明, 
+Sex=1, 
+CourseList2=[
+	{Course3=C}, 
+	{Course3=CC}
+]},
+
+{Age=2, CourseList1=[{Course2=天体物理, Course1=微积分}, {Course2=C语言, Course1=针织}, {Course2=C语言, Course1=针织}], Name=小小, Sex=2, CourseList2=[{Course3=格斗}, {Course3=演员的自我修养}]}
+
+
+示例代码：
+	String filePath = "E://HONG/1.xlsx";
+	String path = "E://HONG/1.xml";         //从配置文件中加载挡板组装配置数据
+	EasyExcelMask load=new EasyExcelMask();
+	List<EasyExcelMask> dMask =load.LoadMask(path,"nodelistname");//<-------------------加载dMask数据
+	EasyExcelUtil.setdMask(dMask);
+    List<Object> objects=EasyExcelUtil.readExcelData(filePath, 3);//<-------------------读取excel数据
+    objects.forEach(System.out::println);
