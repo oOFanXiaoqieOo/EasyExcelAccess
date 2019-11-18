@@ -76,7 +76,6 @@ excel数据：
 {Age=3, 
 CourseList1=[
 	{Course2=B, Course1=A}, 
-	{Course2=BB, Course1=AA}, 
 	{Course2=BB, Course1=AA}
 ],
 Name=小明, 
@@ -85,8 +84,7 @@ CourseList2=[
 	{Course3=C}, 
 	{Course3=CC}
 ]},
-
-{Age=2, CourseList1=[{Course2=天体物理, Course1=微积分}, {Course2=C语言, Course1=针织}, {Course2=C语言, Course1=针织}], Name=小小, Sex=2, CourseList2=[{Course3=格斗}, {Course3=演员的自我修养}]}
+{Age=2, CourseList1=[{Course2=天体物理, Course1=微积分}, {Course2=C语言, Course1=针织}], Name=小小, Sex=2, CourseList2=[{Course3=格斗}, {Course3=演员的自我修养}]}
 
 
 示例代码：

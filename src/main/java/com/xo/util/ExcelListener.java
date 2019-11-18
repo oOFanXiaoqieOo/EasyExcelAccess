@@ -231,7 +231,9 @@ public class ExcelListener extends AnalysisEventListener {
                 dMaskValidNum++;
                 if (!t_mask.getListStr().equals("")) {//存在List属性的，有可能需要对Excel上下文数据进行组装
                     listFlag=true;
-                    listStr.add(t_mask.getListStr());
+                    if(!listStr.contains(t_mask.getListStr())) {//排除重复数据
+                        listStr.add(t_mask.getListStr());
+                    }
                 } else {
                     listOutIndex.add(i);//列表属性外的索引值
                 }
